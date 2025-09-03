@@ -1,6 +1,7 @@
 'use client';
 
 import React, { isValidElement, use, type PropsWithChildren, type ReactElement } from 'react';
+import type { ViewStyle } from 'react-native';
 import type { SFSymbol } from 'sf-symbols-typescript';
 
 import { InternalLinkPreviewContext } from './InternalLinkPreviewContext';
@@ -135,7 +136,7 @@ export const LinkMenu: React.FC<LinkMenuProps> = (props) => {
   );
 };
 
-export interface LinkPreviewProps {
+export type LinkPreviewStyle = Omit<ViewStyle, 'position' | 'width' | 'height'> & {
   /**
    * Sets the preferred width of the preview.
    * If not set, full width of the screen will be used.
@@ -151,7 +152,16 @@ export interface LinkPreviewProps {
    * This is only **preferred** height, the actual height may be different
    */
   height?: number;
+};
+
+export interface LinkPreviewProps {
   children?: React.ReactNode;
+  /**
+   * Custom styles for the preview container.
+   *
+   * Note that some styles may not work, as they are limited or reset by the native view
+   */
+  style?: LinkPreviewStyle;
 }
 
 /**
@@ -184,15 +194,15 @@ export interface LinkPreviewProps {
  * @platform ios
  */
 export function LinkPreview(props: LinkPreviewProps) {
-  const { width, height, children } = props;
+  const { children, style } = props;
   const internalPreviewContext = use(InternalLinkPreviewContext);
   if (useIsPreview() || process.env.EXPO_OS !== 'ios' || !internalPreviewContext) {
     return null;
   }
   const { isVisible, href } = internalPreviewContext;
   const contentSize = {
-    width: width ?? 0,
-    height: height ?? 0,
+    width: style?.width ?? 0,
+    height: style?.height ?? 0,
   };
   let content: React.ReactNode;
   if (children) {
@@ -202,12 +212,7 @@ export function LinkPreview(props: LinkPreviewProps) {
   }
 
   return (
-    <NativeLinkPreviewContent
-      style={{
-        /* Setting default background here, so that the preview is not transparent */
-        backgroundColor: '#fff',
-      }}
-      preferredContentSize={contentSize}>
+    <NativeLinkPreviewContent style={style} preferredContentSize={contentSize}>
       {content}
     </NativeLinkPreviewContent>
   );
