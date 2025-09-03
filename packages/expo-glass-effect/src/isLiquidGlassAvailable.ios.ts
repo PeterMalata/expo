@@ -1,9 +1,6 @@
 import { requireNativeModule } from 'expo-modules-core';
 
-const IS_LIQUID_GLASS_AVAILABLE = requireNativeModule(
-  'ExpoLiquidGlassConstants'
-).isLiquidGlassAvailable;
-
+let IS_LIQUID_GLASS_AVAILABLE: boolean | undefined;
 /**
  * Indicates whether the app is using the Liquid Glass design. The value will be `true` when the
  * Liquid Glass components are available in the app.
@@ -16,5 +13,8 @@ const IS_LIQUID_GLASS_AVAILABLE = requireNativeModule(
  * @platform ios
  */
 export function isLiquidGlassAvailable(): boolean {
-  return IS_LIQUID_GLASS_AVAILABLE;
+  if (IS_LIQUID_GLASS_AVAILABLE === undefined) {
+    IS_LIQUID_GLASS_AVAILABLE = requireNativeModule('ExpoGlassEffect').isLiquidGlassAvailable;
+  }
+  return !!IS_LIQUID_GLASS_AVAILABLE;
 }
